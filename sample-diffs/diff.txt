@@ -1,0 +1,7 @@
+diff a/file.txt b/file.txt
+
+hello, this
+is some diff
++ file with
+- some type
+of changes

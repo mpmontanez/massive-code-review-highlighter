@@ -1,0 +1,27 @@
+body {
+    padding-top: 50px;
+}
+td {
+    font-family: Verdana;
+    font-size: 11px;
+}
+.navbar {
+    padding-top: 15px;
+}
+/* Bootstrap over-rides */
+pre {
+    display: block;
+    padding: 0;
+    margin: 0;
+    font-size: 11px;
+    line-height: 1;
+    color: #333;
+    word-break: break-all;
+    word-wrap: break-word;
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+}
+.panel {
+    margin-top: 50px;
+}
