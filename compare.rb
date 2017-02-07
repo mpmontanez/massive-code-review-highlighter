@@ -1,6 +1,6 @@
 puts 'Generating an HTML file to compare massive pull request changes.'
 
-class ComparisonGenerator
+class ComparisonHtmlWriter
 
   def self.write_html_header(html_file)
     # Begin the HTML document.
@@ -71,54 +71,50 @@ class ComparisonGenerator
 end
 
 # Open the diff file and read each line.
-diff_file_contents = File.open('../example-diff-2.txt').read
+diff_file_path = '../example-diff-2.txt'
+diff_file_contents = File.open(diff_file_path).read
 diff_file_contents.gsub!(/\r\n?/, "\n")
 
-DIFF_FILES_PER_HTML = 30
-first_html_file = true
-html_file_count = 0
-begin_html_file = true
+DIFF_FILES_PER_HTML_DOCUMENT = 30
+html_document_count = 0
+open_new_html_document = true
 
-html_file = nil
-first_panel = true
-line_number = 0
+current_html_document = nil
+open_new_diff_panel = true
 file_number = 0
 files_in_html = []
 
 diff_file_contents.each_line do |line|
 
-  if begin_html_file
-    begin_html_file = false
-    html_file_count += 1
+  if open_new_html_document
+    open_new_html_document = false
+    html_document_count += 1
 
-    unless first_html_file
+    unless html_document_count == 1
       # DEBUG For now, break at 100 files.
-      if html_file_count > 10
+      if html_document_count > 10
         break
       end
 
       # Close the previous HTML file.
-      ComparisonGenerator.write_html_footer(html_file, files_in_html)
-      html_file.close unless html_file.nil?
+      ComparisonHtmlWriter.write_html_footer(current_html_document, files_in_html)
+      current_html_document.close unless current_html_document.nil?
     end
 
-    first_html_file = false
-
     # Destination HTML file.
-    html_file = File.open("generated-html/comparison-#{html_file_count}.html", "w")
+    current_html_document = File.open("generated-html/comparison-#{html_document_count}.html", "w")
 
     # Begin the HTML document.
-    ComparisonGenerator.write_html_header(html_file)
+    ComparisonHtmlWriter.write_html_header(current_html_document)
 
-    first_panel = true
-    line_number = 0
+    open_new_diff_panel = true
     file_number = 0
     files_in_html = []
   end
 
   if line.start_with? 'diff'
-    unless first_panel
-      ComparisonGenerator.write_html_to_close_panel(html_file)
+    unless open_new_diff_panel
+      ComparisonHtmlWriter.write_html_to_close_panel(current_html_document)
     end
 
     file_number += 1
@@ -128,32 +124,22 @@ diff_file_contents.each_line do |line|
     files_in_html << file_name
 
     # Open the panel to display the changes within the file.
-    ComparisonGenerator.write_html_to_open_panel(html_file, line, file_name)
-    first_panel = false
+    ComparisonHtmlWriter.write_html_to_open_panel(current_html_document, line, file_name)
+    open_new_diff_panel = false
     next
   end
 
   # Write line HTML.
-  ComparisonGenerator.write_html_for_comparison_line(html_file, line)
-  line_number += 1
+  ComparisonHtmlWriter.write_html_for_comparison_line(current_html_document, line)
 
-  if file_number == DIFF_FILES_PER_HTML
-    # Close the HTML file.
-    ##ComparisonGenerator.write_html_footer(html_file, files_in_html)
-    # Close the HTML file.
-    #html_file.close unless html_file.nil?
-
-    begin_html_file = true
-
-    #if html_file_count > 100
-    #  break
-    #end
+  if file_number == DIFF_FILES_PER_HTML_DOCUMENT
+    open_new_html_document = true
   end
 
 end
 
 # Close the last file.
-ComparisonGenerator.write_html_footer(html_file, files_in_html)
-html_file.close unless html_file.nil?
+ComparisonHtmlWriter.write_html_footer(current_html_document, files_in_html)
+current_html_document.close unless current_html_document.nil?
 
 puts 'Done.'
