@@ -1,4 +1,5 @@
 require_relative 'comparison_html_writer'
+require 'cgi'
 
 class ComparisonGenerator
 
@@ -26,7 +27,7 @@ class ComparisonGenerator
         # Close and open a new HTML file if we've reached the max files per document.
         if file_number == diff_files_per_document
           # DEBUG For now, break at 100 files.
-          if html_document_count > 10
+          if html_document_count > 200
             break
           end
 
@@ -54,7 +55,7 @@ class ComparisonGenerator
       end
 
       # Write line HTML.
-      ComparisonHtmlWriter.write_html_for_comparison_line(current_html_document, line)
+      ComparisonHtmlWriter.write_html_for_comparison_line(current_html_document, CGI.escapeHTML(line))
 
     end
 
